@@ -1,0 +1,135 @@
+
+<html>
+  <head>
+    <title>Snake</title>
+    <link href="styles/normalize.css" rel="stylesheet" type="text/css"/>
+    <link href="styles/styles.css" rel="stylesheet" type="text/css"/>
+    <script src="src/three.min.js"></script>
+    <script src="src/SPE.js"></script>
+    <script src="src/pixi.min.js"></script>
+    <script src="src/pixi-sound.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/keyboard-controller.js"></script>
+    <script src="js/state-machine.js"></script>
+    <script src="js/asset-manager.js"></script>
+    <script src="js/sound-manager.js"></script>
+    <script src="js/tail.js"></script>
+    <meta charset="utf-8"/>
+  </head>
+  <body>
+    <button class="pause-button" onclick="pause()">пауза</button>
+    <button class="new-game-button" onclick="newGame()">Новая игра</button>
+    <button class="cam-button" onclick="switchCam()">камера</button>
+    <progress class="loading-progress"></progress>
+    <div class="score-container">Счёт: 0</div>
+    <div class="pause-message">Пауза</div>
+    <div class="welcome-message">Змейка</div>
+    <div class="game-over-message">Game Over!</div>
+    <div class="final-score"></div>
+    <div class="loading-message">Загрузка...</div>
+    <script>
+      var game = new Game({
+        gameWidth : 30,
+        gameHeight : 20,
+        blockSize : 30,
+        gameSpeed : 300,
+        framesPerStep : 10,
+        animationFps : 50,
+        startX : 10,
+        startY : 7,
+        initialTail : 2,
+        initialDirection : 2,
+      
+        scoreContainer: "score-container",
+        gameOverMessage : "game-over-message",
+        welcomeMessage : "welcome-message",
+        finalScore : "final-score",
+        pauseButton : "pause-button",
+        pauseMessage : "pause-message",
+        camButton : "cam-button",
+        newGameButton : "new-game-button",
+        loadingMessage : "loading-message",
+        loadingProgress : "loading-progress",
+      
+        backgroundTexture : "assets/img/bg.jpg",
+        maxCamTilt : 100,
+        collisionCameraJump : 1000,
+      
+      sound_manager_data :
+      {
+          soundLoadedEventName: "Snake-game:sounds-loaded",
+          sounds:   
+          [
+              {
+                  id: 0,
+                  files: ["assets/sound/bonus.mp3"],
+                  playEvent: ["Snake-game: bonus taken"],
+                  playRandom: true
+              },
+              {
+                  id: 1,
+                  files: ["assets/sound/game over.mp3"],
+                  playEvent: ["Snake-game: game over"],
+                  playRandom: true
+              },
+              {
+                  id: 2,
+                  files: ["assets/sound/music.mp3"],
+                  playEvent: ["Snake-game: new game"],
+                  stopEvent: ["Snake-game: game over"],
+                  playRandom: true,
+                  loop: true
+              }
+          ]
+      },
+      
+      walls : [
+          {
+              x :10,
+              y :10
+          },
+          {
+              x: 3,
+              y: 3
+          },
+          {
+              x: 7,
+              y: 19
+          },
+          {
+              x: 17,
+              y: 5
+          },
+          {
+              x: 15,
+              y: 14
+          },
+          {
+              x: 27,
+              y: 17
+          }
+      ]
+      
+      });
+      
+      function pause()
+      {
+          var event = new CustomEvent("Snake-game:pause-pressed");
+          document.dispatchEvent(event);
+      }
+      
+      function switchCam()
+      {
+          var event = new CustomEvent("Snake-game:switch-camera");
+          document.dispatchEvent(event);
+      }
+      
+      function newGame()
+      {
+          var event = new CustomEvent("Snake-game:new-game");
+          document.dispatchEvent(event);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+.pause-button{
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+.cam-button{
+	position: fixed;
+	top: 0;
+	left: 75;
+}
+
+.new-game-button{
+	position: fixed;
+	top: 300;
+	left: 200;
+	visibility : hidden;
+}
+
+.loading-progress{
+	position: fixed;
+	top: 300;
+	left: 200;
+}
+
+.score-container{
+	position: fixed;
+	color : white;
+	top: 0;
+	left: 175;
+}
+
+.pause-message{
+	position: fixed;
+	color : white;
+	top: 250;
+	left: 250;
+	font-size: 30;
+}
+
+.welcome-message{
+	position: fixed;
+	color : white;
+	visibility : hidden;
+	font-size: 50;
+	top: 200;
+	left: 200;
+}
+
+.loading-message{
+	position: fixed;
+	color : white;
+	font-size: 50;
+	top: 200;
+	left: 200;
+}
+
+.game-over-message{
+	position: fixed;
+	color : white;
+	font-size: 30;
+	top: 220;
+	left: 250;
+}
+
+.final-score{
+	position: fixed;
+	color : white;
+	font-size: 30;
+	top: 250;
+	left: 250;
+}
