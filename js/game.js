@@ -404,7 +404,7 @@ class Game
 			}
 
 			this.turnCountdown = this.gameSpeed;
-			this.animationCountdown = -this.animationTime;
+			this.animationCountdown = 0;
 			var diff = this.framesPerStep - this.frames;
 			if (diff > 0)
 			{
