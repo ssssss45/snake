@@ -9,7 +9,7 @@ class Game
 
 		this.renderer = new Renderer(params);
 		this.canvas = this.renderer.returnCanvas();
-		//контроллер
+//инициализация контроллера
 		this.keycon = new keyboardController();
 		this.keycon.attach(this.canvas);
 		this.keycon.addKeyToController("left",[37]);
@@ -18,7 +18,7 @@ class Game
 		this.keycon.addKeyToController("down",[40]);
 		this.keycon.addTouchToController("touch",[Infinity,-Infinity,Infinity,-Infinity]);
 		this.keycon.addTouchToController("cick",[Infinity,-Infinity,Infinity,-Infinity]);
-
+//получение объектов со страницы
 		this.scoreContainer = document.getElementsByClassName(params.scoreContainer)[0];
 		this.gameOverMessage = document.getElementsByClassName(params.gameOverMessage)[0];
 		this.welcomeMessage = document.getElementsByClassName(params.welcomeMessage)[0];
@@ -29,7 +29,7 @@ class Game
 		this.newGameButton = document.getElementsByClassName(params.newGameButton)[0];
 		this.loadingMessage = document.getElementsByClassName(params.loadingMessage)[0];
 		this.loadingProgress = document.getElementsByClassName(params.loadingProgress)[0];
-
+//установка видимости элементов
 		this.scoreContainer.style.visibility = "hidden";
 		this.pauseButton.style.visibility = "hidden";
 		this.camButton.style.visibility = "hidden";
@@ -46,7 +46,7 @@ class Game
 		this.startDirection = params.initialDirection;
 		this.followCamControls = false;
 		this.walls = params.walls;
-
+//инициализация ассет менеджера
 		this.assetManager = new AssetManager({assets:[
 		          {
 		            type : "tail",
@@ -63,7 +63,7 @@ class Game
 
 		this.stateMachine = new StateMachine();
 
-		//слушатели на события контроллера
+//слушатели на события контроллера
 		this.canvas.addEventListener("controls:activate",
 			this.activateListenerActions.bind(this));
 		this.canvas.addEventListener("controls:deactivate",
@@ -73,7 +73,7 @@ class Game
 		this.canvas.addEventListener("controls:click",
 			this.clickEventHandler.bind(this));
 		this.canvas.addEventListener("controls:touch moved", this.touchEventHandler.bind(this));
-
+//слушатели на события стейт машины
 		document.addEventListener("Snake-game:pause-pressed",
 			this.pausePressed.bind(this));
 		document.addEventListener("Snake-game:switch-camera",
@@ -86,7 +86,7 @@ class Game
 			this.endingFinishedHandler.bind(this));
 		document.addEventListener(waitForEvent,
 			this.loadedHandler.bind(this));
-
+//инициализация саунд менеджера
 		this.soundManager = new SoundManager(params.sound_manager_data);
 
 		this.tail = [];
@@ -95,13 +95,13 @@ class Game
 		this.downActive = false;
 		this.upActive = false;
 		this.paused = false;
-
+//константы направлений
 		this.S = 0;
 		this.W = 1;
 		this.N = 2;
 		this.E = 3;
 	}
-
+//обработчик загрузки
 	loadedHandler()
 	{
 		this.stateMachine.setWelcome();
@@ -110,7 +110,7 @@ class Game
 		this.loadingProgress.style.visibility = "hidden";
 		this.loadingMessage.style.visibility = "hidden";
 	}
-
+//обработчики событий контроллера
 	activateListenerActions(event)
 	{
 		switch(event.detail.action)
@@ -160,9 +160,9 @@ class Game
 	gameStart()
 	{
 		this.stateMachine.setNewGame();
-		//отдаём ассеты менеджеру
+//отдаём ассеты менеджеру
 		this.reset();
-		//установка видимости элементов
+//установка видимости элементов
 		this.scoreContainer.style.visibility = "visible";
 		this.pauseButton.style.visibility = "visible";
 		this.camButton.style.visibility = "visible";
@@ -242,7 +242,7 @@ class Game
 
 		if (this.followCamControls)
 		{
-			//управление в режиме камеры от третьего лица
+//управление в режиме камеры от третьего лица
 			if (this.touch != undefined)
 			{
 				if (this.touch.clientX < this.renderer.totalWidth / 2)
@@ -270,7 +270,7 @@ class Game
 		}
 		else
 		{
-			//управление в режиме камеры сверху
+//управление в режиме камеры сверху
 			if ((this.leftActive) && (this.direction != 3))
 			{
 				this.newDirection = 1;
@@ -330,38 +330,36 @@ class Game
 
 				this.direction = this.newDirection;	
 			}
-
-
-
+//обновление координат сегментов хвоста
 			for (var i = 0; i < this.tailLength; i++)
 			{
 				if (this.tail[i].active)
 				{
 					this.tail[i].updateCoords(this.dirs[i + 1])
 				}
-
+//проверка столкновения головы с сегментами
 				if (this.tail[i].checkHeadCollision(this.x, this.y))
 				{
 					collision = true;
 				}
 			}
-
+//активация нового сегмента, если он есть
 			if (this.tailToActivate != undefined)
 			{
 				this.tailToActivate.active = true;
 				this.tailToActivate = undefined;
 			}
 
-			//обработка подбора бонусов
+//обработка подбора бонусов
 			if ((this.x == this.bonusX) && (this.y == this.bonusY))
 			{
 				this.score ++;
 				this.scoreContainer.innerHTML = "Счёт: " + this.score;
 
-				//генерация нового бонуса
+//генерация нового бонуса
 				this.spawnBonus();
 
-				//увеличение хвоста
+//увеличение хвоста
 				var last = this.tail[this.tail.length - 1];
 				var tail = this.assetManager.getAssetByType("tail")
 				this.tail.push(tail);
@@ -397,7 +395,7 @@ class Game
 					collision = true;
 				}
 			}
-
+//переход в состояние конечной анимации
 			if ((this.x == -1) || (this.y == -1) || (this.x == this.width) || (this.y == this.height) || (collision))
 			{
 				this.stateMachine.setEndingAnimation();
@@ -423,7 +421,7 @@ class Game
 
 			this.frames = 0;
 		}
-
+//движение сегментов
 		if ((this.animationCountdown <= 0))
 		{
 			this.frames ++;
@@ -434,7 +432,7 @@ class Game
 			this.animationCountdown += this.animationTime;	
 		}
 	}
-
+//генерация бонуса
 	spawnBonus()
 	{
 		var check = true;
@@ -455,7 +453,7 @@ class Game
 			}
 		}
 	}
-
+//получение направления из угла
 	getDirectionFromAngle(s1, s2, currentDir)
 	{
 		var angle = findAngle(s1.x, s1.y, s2.x, s2.y);
@@ -505,7 +503,7 @@ class Game
 		this.turn = 0;
 		this.newDirection = this.direction
 	}
-
+//обработчик нажатий на кнопку паузы
 	pausePressed()
 	{
 		this.stateMachine.setPaused();

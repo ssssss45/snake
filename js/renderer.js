@@ -44,7 +44,7 @@ class Renderer
 
 		this.followCam = false;
 
-		this.renderer = new THREE.WebGLRenderer();
+		this.renderer = new THREE.WebGLRenderer({antialias:true});
 		this.renderer.setSize( this.viewPortWidth, this.viewPortHeight );
 		document.body.appendChild( this.renderer.domElement );
 
@@ -127,7 +127,7 @@ class Renderer
 			}
 		}
 
-		//частицы
+//частицы при столкновении
 		this.emitterGroup = new SPE.Group({
         		texture: {
                     value: this.texLoader.load("assets/img/particle.png"),
@@ -163,7 +163,7 @@ class Renderer
                 },
         		particleCount: 500
         	});
-
+//частицы при поднятии бонусов
 		this.bonusEmitter = new SPE.Emitter({
 				//duration : 0.1,
 				alive : false,
@@ -232,22 +232,8 @@ class Renderer
 		this.tiltX = (this.head.position.y - this.viewPortHeight / 2)  * -this.tiltIncriment / this.moveDistance;
 		this.tiltY = (this.head.position.x - this.viewPortWidth / 2) * -this.tiltIncriment / this.moveDistance;
 
-		if (!this.followCam)
-		{
-			this.camera.position.z = (this.totalHeight) * 0.67;
-			this.camera.position.x = (this.viewPortWidth) / 2;
-			this.camera.position.y = (this.totalHeight) / 2;
-			this.camera.rotation.z = 0;	
-			this.camera.rotation.x = this.tiltX;
-			this.camera.rotation.y = this.tiltY;
-		}
-		else
-		{
-			this.camera.position.z = this.blockSize * 4; // top
-			this.camera.position.x = 0;
-			this.camera.position.y = -this.blockSize * 1.7; // depth
-			this.camera.rotation.x = 50 / 180 * Math.PI;
-		}
+		this.followCam = !this.followCam;
+		this.switchCamera();
 
 		this.camGroup.rotation.z = 0;
 		this.cameraRotateTo = 0;
@@ -271,7 +257,7 @@ class Renderer
 		{
 			this.moveParticles();
 		}
-		//движение
+//движение
 		this.dirs = this.directions(this.direction);
 		this.head.position.x += this.dirs.x * this.moveDistance;
 		this.head.position.y += this.dirs.y * this.moveDistance;
@@ -304,7 +290,7 @@ class Renderer
 			this.camera.rotation.y = this.tiltY;
 		}
 	}
-
+//поворот камеры в игре от третьего лица
 	rotateCamGroup()
 	{
 		this.camGroup.position.copy(this.head.position );
@@ -340,7 +326,7 @@ class Renderer
 	{
 		this.paused = !this.paused;
 	}
-
+//генерация бонуса
 	spawnBonus(x,y)
 	{
 		var realY = this.height - y - 1;
