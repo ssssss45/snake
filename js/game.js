@@ -135,12 +135,18 @@ class Game
 
 	touchEventHandler(event)
 	{
-		this.touch = event.detail.touch;
+		if (this.stateMachine.state == this.stateMachine.Playing)
+		{
+			this.touch = event.detail.touch;
+		}
 	}
 
 	clickEventHandler(event)
 	{
-		this.touch = event.detail.click;
+		if (this.stateMachine.state == this.stateMachine.Playing)
+		{
+			this.touch = event.detail.click;	
+		}
 	}
 
 /*
@@ -182,7 +188,7 @@ class Game
 		this.y = this.startY;
 
 		var dirs = this.directions(this.startDirection);
-
+//расстановка начальной змеи
 		for (var i = 0; i <= this.tailLength; i++)
 		{
 			if (i != this.tailLength)
@@ -229,8 +235,7 @@ class Game
 		var clearDir = true;
 		var collision = false;
 
-
-		if ((this.stateMachine.state == this.stateMachine.Playing)|(this.stateMachine.state == this.stateMachine.Paused))
+		if ((this.stateMachine.state == this.stateMachine.Playing)||(this.stateMachine.state == this.stateMachine.Paused))
 		{
 			requestAnimationFrame( this.gameStep.bind(this));
 		}
@@ -262,7 +267,6 @@ class Game
 				this.rightActive = false;
 				this.turn = 1;
 			}
-
 		}
 		else
 		{
@@ -298,6 +302,7 @@ class Game
 		}
 
 		this.previousTime = date.getTime();
+//переключение направлений
 		if (this.turnCountdown < 0)
 		{
 			if (this.followCamControls)
@@ -324,8 +329,9 @@ class Game
 				}
 
 				this.direction = this.newDirection;	
-				
 			}
+
+
 
 			for (var i = 0; i < this.tailLength; i++)
 			{
@@ -398,7 +404,7 @@ class Game
 			}
 
 			this.turnCountdown = this.gameSpeed;
-			this.animationCountdown = 0;
+			this.animationCountdown = -this.animationTime;
 			var diff = this.framesPerStep - this.frames;
 			if (diff > 0)
 			{
@@ -425,7 +431,7 @@ class Game
 			{
 				this.renderer.move(this.dirs);
 			}
-			this.animationCountdown = this.animationTime;	
+			this.animationCountdown += this.animationTime;	
 		}
 	}
 
@@ -449,7 +455,6 @@ class Game
 			}
 		}
 	}
-
 
 	getDirectionFromAngle(s1, s2, currentDir)
 	{
