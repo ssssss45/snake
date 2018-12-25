@@ -31,7 +31,7 @@ class Renderer
 
 		this.scene = new THREE.Scene();
 
-		this.camera = new THREE.PerspectiveCamera( 75, this.viewPortWidth / this.viewPortHeight, 0.1, 10000 );
+		this.camera = new THREE.PerspectiveCamera( 75, this.viewPortWidth / this.viewPortHeight, 10, 10000 );
 		this.camera.position.set(
 			(this.viewPortWidth) / 2 ,
 			((this.totalHeight) / 2),
@@ -119,7 +119,7 @@ class Renderer
 				if ((i == 0) || (i == this.width + 1) || (j == 0) || (j == this.height + 1) || (wall) )
 				{
 					var box = new THREE.Mesh( boxGeometry, boxMaterial );
-					box.position.x = i * this.blockSize;
+					box.position.x = i * (this.blockSize + 0.0001);
 					box.position.y = (j - 1) * this.blockSize;
 					box.position.z = -this.blockSize;
 					this.scene.add(box)	
@@ -347,7 +347,7 @@ class Renderer
 		this.bonus.position.x = (x + 1) * this.blockSize;
 		this.bonus.position.y = realY * this.blockSize;
 	}
-
+//получение модификаторов для x и y из направлений
 	directions(dir)
 	{
 		var result = {};
@@ -369,13 +369,14 @@ class Renderer
    ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝
 
 */
+//создание нового куска хвоста
 	getTailMesh()
 	{
 		var sphere = new THREE.Mesh( this.geometry, this.material );
 		this.scene.add(sphere);
 		return sphere;
 	}
-
+//установка нового куска хвоста на поле
 	deployTail(tail, x, y)
 	{
 		tail.mesh.position.x = (x + 1) * this.blockSize;
@@ -391,6 +392,7 @@ class Renderer
 ╚██████╗██║  ██║██║ ╚═╝ ██║███████╗██║  ██║██║  ██║
  ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝
 */
+//переключение камеры
 	switchCamera()
 	{
 		this.followCam = !this.followCam;
@@ -418,10 +420,9 @@ class Renderer
 		}
 		this.renderer.render(this.scene, this.camera);
 	}
-
+//тряска камеры при столкновении
 	cameraJumpStart()
 	{
-
 		var hb = this.blockSize / 2;
 		
 		this.cameraJumps = this.collisionCameraJump;
@@ -469,7 +470,7 @@ class Renderer
 		}
 		this.renderer.render(this.scene, this.camera)
 	}
-
+//выброс частиц при подборе бонуса
 	emitOnBonus()
 	{
 		var emitter = this.bonusEmitter;
