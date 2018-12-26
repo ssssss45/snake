@@ -7,7 +7,8 @@ class Game
 
 		this.framesPerStep = params.framesPerStep;
 
-		this.renderer = new Renderer(params);
+		this.stateMachine = new StateMachine();
+		this.renderer = new Renderer(params, this.stateMachine);
 		this.canvas = this.renderer.returnCanvas();
 //инициализация контроллера
 		this.keycon = new keyboardController();
@@ -47,21 +48,21 @@ class Game
 		this.followCamControls = false;
 		this.walls = params.walls;
 //инициализация ассет менеджера
-		this.assetManager = new AssetManager({assets:[
-		          {
-		            type : "tail",
-		            number : 10,
-		            params : {
-		            	renderer : this.renderer,
-		            	x : -10,
-		            	y : -10
-		            },
-		            assetClass : Tail
-		          }]});
+		this.assetManager = new AssetManager(
+			{
+				assets:[
+					{
+						type : "tail",
+						number : 10,
+						params : {
+							renderer : this.renderer,
+							x : -10,
+							y : -10
+						},
+				assetClass : Tail
+			}]});
 
 		var waitForEvent = params.sound_manager_data.soundLoadedEventName;
-
-		this.stateMachine = new StateMachine();
 
 //слушатели на события контроллера
 		this.canvas.addEventListener("controls:activate",
@@ -245,7 +246,7 @@ class Game
 //управление в режиме камеры от третьего лица
 			if (this.touch != undefined)
 			{
-				if (this.touch.clientX < this.renderer.totalWidth / 2)
+				if (this.touch.clientX < this.renderer.screenWidth / 2)
 				{
 					this.leftActive = true;
 				}
@@ -289,7 +290,7 @@ class Game
 			if ((this.downActive) && (this.direction != 2))
 			{
 				this.newDirection = 0;
-			}	
+			}
 		}
 
 		var date = new Date();
@@ -324,7 +325,8 @@ class Game
 			{
 				if (this.touch != undefined)
 				{
-					this.newDirection = this.getDirectionFromAngle(this.renderer.getHeadCoords(), {x:this.touch.clientX, y:this.touch.clientY}, this.direction);
+					console.log(this.renderer.scale)
+					this.newDirection = this.getDirectionFromAngle(this.renderer.getHeadCoords(), {x:this.touch.clientX * this.renderer.scale, y:this.touch.clientY}, this.direction);
 					this.touch = undefined
 				}
 

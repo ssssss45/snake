@@ -1,7 +1,8 @@
 class Renderer
 {
-	constructor(params)
+	constructor(params, stateMachine)
 	{
+		this.stateMachine = stateMachine;
 		this.height = params.gameHeight;
 		this.width = params.gameWidth;
 		this.blockSize = params.blockSize;
@@ -22,6 +23,7 @@ class Renderer
 		this.startDirection = params.initialDirection;
 		this.initialTail = params.initialTail;
 
+		this.maxCamTilt = params.maxCamTilt;
 		this.tiltIncriment = this.totalWidth / params.maxCamTilt / 10000;
 
 		this.paused = false;
@@ -37,6 +39,8 @@ class Renderer
 			((this.totalHeight) / 2),
 			(this.totalHeight) * 0.67
 		);
+
+		window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 		// this.camera.fov = 90;
 
 		this.camGroup = new THREE.Group();
@@ -203,6 +207,28 @@ class Renderer
 		this.E = 3;
 
 		this.dirs = this.directions();
+		this.onWindowResize();
+	}
+
+	onWindowResize()
+	{
+		this.screenWidth = window.innerWidth;
+		this.screenHeight = window.innerHeight;
+	    this.camera.aspect = this.screenWidth / this.screenHeight;
+	    this.camera.updateProjectionMatrix();
+	    this.scale = this.viewPortWidth / this.screenWidth;
+	    //this.scaleY = this.totalWidth / this.screenWidth;
+
+	    this.tiltIncriment = this.totalWidth / this.maxCamTilt / (this.screenWidth / this.totalWidth / 2);
+
+	    this.renderer.setSize( window.innerWidth, window.innerHeight );
+
+		this.setCam();
+
+		if ((this.stateMachine.state != this.stateMachine.Loading) && (this.stateMachine.state != this.stateMachine.Welcome))
+		{
+			this.renderer.render(this.scene, this.camera);
+		}
 	}
 /*
 ███████╗████████╗ █████╗ ██████╗ ████████╗
@@ -229,8 +255,7 @@ class Renderer
 		this.rotateCamGroup();
 		this.lastDir = this.startDirection;
 
-		this.tiltX = (this.head.position.y - this.viewPortHeight / 2)  * -this.tiltIncriment / this.moveDistance;
-		this.tiltY = (this.head.position.x - this.viewPortWidth / 2) * -this.tiltIncriment / this.moveDistance;
+		this.setCam();
 
 		this.followCam = !this.followCam;
 		this.switchCamera();
@@ -276,19 +301,19 @@ class Renderer
 
 		this.camGroup.rotation.z += this.dif / 8; 
 
-		switch (this.direction)
-		{
-			case 0: this.tiltX -= this.tiltIncriment; break;
-			case 1: this.tiltY += this.tiltIncriment; break;
-			case 2: this.tiltX += this.tiltIncriment; break;
-			case 3: this.tiltY -= this.tiltIncriment; break;
-		}
+		this.setCam();
+	}
+//метод наклона камеры
+	setCam()
+	{
+		this.tiltY = (this.head.position.y - this.viewPortHeight / 2)  * this.tiltIncriment / this.moveDistance;
+		this.tiltX = (this.head.position.x - this.viewPortWidth / 2) * -this.tiltIncriment / this.moveDistance;
 
 		if (!this.followCam)
 		{
-			this.camera.rotation.x = this.tiltX;
-			this.camera.rotation.y = this.tiltY;
-		}
+			this.camera.rotation.x = this.tiltY;
+			this.camera.rotation.y = this.tiltX;
+		}	
 	}
 //поворот камеры в игре от третьего лица
 	rotateCamGroup()
@@ -307,7 +332,7 @@ class Renderer
 			}
 
 			this.lastDir = this.direction;
-	}
+		}
 
 		this.dif = this.cameraRotateTo - this.camGroup.rotation.z;
 	}
@@ -401,8 +426,8 @@ class Renderer
 			this.camera.position.x = (this.viewPortWidth) / 2;
 			this.camera.position.y = (this.totalHeight) / 2;
 			this.camera.rotation.z = 0;	
-			this.camera.rotation.x = this.tiltX;
-			this.camera.rotation.y = this.tiltY;
+			this.camera.rotation.x = this.tiltY;
+			this.camera.rotation.y = this.tiltX;
 		}
 		this.renderer.render(this.scene, this.camera);
 	}
