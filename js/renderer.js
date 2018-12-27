@@ -54,7 +54,7 @@ class Renderer
 
 		this.texLoader = new THREE.TextureLoader();
 
-		this.backMaterial = new THREE.MeshLambertMaterial({color: 0x228b22, side: THREE.DoubleSide, wireframe:false, map: this.texLoader.load(params.backgroundTexture)});
+		this.backMaterial = new THREE.MeshPhongMaterial({color: 0x228b22, side: THREE.FlipSided, map: this.texLoader.load(params.backgroundTexture)});
 		this.backGeometry = new THREE.PlaneGeometry( this.totalWidth, this.totalHeight, this.width, this.height);
 
 		this.backGround = new THREE.Mesh( this.backGeometry, this.backMaterial ); 
@@ -62,11 +62,12 @@ class Renderer
 		this.backGround.position.x = (this.totalWidth + this.blockSize) / 2;
 		this.backGround.position.y = (this.totalHeight - this.blockSize) / 2;
 
-		this.material = new THREE.MeshLambertMaterial({color: 0xCC0000});
-		var boxMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+		this.material = new THREE.MeshLambertMaterial({color: 0xCC0000, side: THREE.DoubleSide, wireframe:false});
+		var boxMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
+		let headGeometry = new THREE.SphereGeometry( this.blockSize / 2, 32, 32/*, 2, 6*/);
 		this.geometry = new THREE.SphereGeometry( this.blockSize / 2, 32, 32);
-		this.head = new THREE.Mesh( this.geometry, this.material );
-		
+		this.head = new THREE.Mesh( headGeometry, this.material );
+		this.head.material.side = THREE.DoubleSide;
 		this.scene.add( this.head );
 
 		this.pi2 = Math.PI / 2;
@@ -75,7 +76,7 @@ class Renderer
 		this.unusedTails = [];
 
 		var bonusMaterial = new THREE.MeshLambertMaterial({color: 0x99ff});
-		var bonusGeometry = new THREE.SphereGeometry( this.blockSize / 4, 32, 32 );
+		var bonusGeometry = new THREE.SphereGeometry( this.blockSize / 4, 32, 32);
 		this.bonus = new THREE.Mesh( bonusGeometry, bonusMaterial );
 		this.scene.add( this.bonus );
 
@@ -217,7 +218,7 @@ class Renderer
 	    this.camera.aspect = this.screenWidth / this.screenHeight;
 	    this.camera.updateProjectionMatrix();
 	    this.scale = this.viewPortWidth / this.screenWidth;
-	    //this.scaleY = this.totalWidth / this.screenWidth;
+	    this.scaleY = this.totalWidth / this.screenWidth;
 
 	    this.tiltIncriment = this.totalWidth / this.maxCamTilt / (this.screenWidth / this.totalWidth / 2);
 

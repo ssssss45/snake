@@ -325,8 +325,7 @@ class Game
 			{
 				if (this.touch != undefined)
 				{
-					console.log(this.renderer.scale)
-					this.newDirection = this.getDirectionFromAngle(this.renderer.getHeadCoords(), {x:this.touch.clientX * this.renderer.scale, y:this.touch.clientY}, this.direction);
+					this.newDirection = this.getDirectionFromAngle(this.renderer.getHeadCoords(), {x:this.touch.clientX / this.renderer.scale, y:this.touch.clientY / this.renderer.scaleY }, this.direction);
 					this.touch = undefined
 				}
 
@@ -351,7 +350,6 @@ class Game
 				this.tailToActivate.active = true;
 				this.tailToActivate = undefined;
 			}
-
 //обработка подбора бонусов
 			if ((this.x == this.bonusX) && (this.y == this.bonusY))
 			{
@@ -374,6 +372,7 @@ class Game
 				{
 					tail.deploy(this.x, this.y, 1);	
 				}
+
 				this.tailLength ++;
 				clearDir = false;
 				this.tailToActivate = tail;
@@ -381,7 +380,7 @@ class Game
 				var event = new CustomEvent("Snake-game: bonus taken");
 				document.dispatchEvent(event);
 			}
-
+//изменение координат головы
 			switch(this.direction)
 			{
 				case 0: this.y += 1; break;
@@ -389,7 +388,7 @@ class Game
 				case 2: this.y -= 1; break;
 				case 3: this.x += 1; break;				
 			}	
-
+//проверка столкновения со стенами
 			for (var i = 0; i < this.walls.length; i++)
 			{
 				if ((this.walls[i].x == this.x)&&(this.walls[i].y == this.y))
@@ -413,8 +412,9 @@ class Game
 					this.renderer.move(this.dirs);
 				}
 			}
-
+//передача нового направления отрисовщику
 			this.renderer.setDir(this.direction);
+//обновление массива направлений
 			if (clearDir)
 			{
 				this.dirs.pop();
@@ -455,7 +455,7 @@ class Game
 			}
 		}
 	}
-//получение направления из угла
+//получение направления из угла (на клик и тач)
 	getDirectionFromAngle(s1, s2, currentDir)
 	{
 		var angle = findAngle(s1.x, s1.y, s2.x, s2.y);
