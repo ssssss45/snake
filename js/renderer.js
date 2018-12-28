@@ -182,7 +182,7 @@ class Renderer
 			{
 				this.tail[i].sprite.visible = true;
 				var dirs = this.directions(dirArray[i + 1]);
-//движение текстур хвоста
+//движение текстур активных сегментов хвоста
 				this.tail[i].sprite.x += dirs.x * this.blockSize;
 				this.tail[i].sprite.y += dirs.y * this.blockSize;
 
@@ -191,7 +191,7 @@ class Renderer
 				{
 //секция у головы
 					let temp = {x : hx, y : hy};
-					this.determineSegmentTexture(temp, this.tail[1], this.tail[0]);
+					this.determineSegmentTexture(temp, this.tail[1], this.tail[0], dirArray[i + 1]);
 				}
 				else
 				if ((i == this.tail.length - 1) || ((i == this.tail.length - 2) && (!this.tail[this.tail.length - 1].active)))
@@ -208,24 +208,40 @@ class Renderer
 				}
 				else
 				{
-					this.determineSegmentTexture(this.tail[i - 1], this.tail[i + 1], this.tail[i])
+					this.determineSegmentTexture(this.tail[i - 1], this.tail[i + 1], this.tail[i], dirArray[i + 1])
 				}
 			}
 		}
 	}
 
-	determineSegmentTexture(prevSprite, nextSprite, target)
+	determineSegmentTexture(prevSprite, nextSprite, target, dir)
 	{
+//определение нужного разворота прямого сегмента	
 		if (prevSprite.x == nextSprite.x)
 		{
 			target.sprite.texture = this.straightTexture;
-			target.sprite.rotation = Math.PI / 2;
+			if (dir == this.N)
+			{
+				target.sprite.rotation = -this.halfPI;	
+			}
+			else
+			{	
+				target.sprite.rotation = this.halfPI;	
+			}
 		}
 		else
 		if (prevSprite.y == nextSprite.y)
 		{
 			target.sprite.texture = this.straightTexture;
-			target.sprite.rotation = 0;
+
+			if (dir == this.W)
+			{
+				target.sprite.rotation = Math.PI;
+			}
+			else
+			{
+				target.sprite.rotation = 0;
+			}
 		}
 		else
 		{
