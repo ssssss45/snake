@@ -59,7 +59,6 @@ class Game
 			this.touchEventHandler.bind(this));
 		this.canvas.addEventListener("controls:click",
 			this.clickEventHandler.bind(this));
-		this.canvas.addEventListener("controls:touch moved", this.touchEventHandler.bind(this));
 //слушатели на события стейт машины
 		document.addEventListener("Snake-game:pause-pressed",
 			this.pausePressed.bind(this));
@@ -320,6 +319,9 @@ class Game
 				this.score ++;
 				this.scoreContainer.innerHTML = "Счёт: " + this.score;
 
+				var event = new CustomEvent("Snake-game: bonus taken");
+				document.dispatchEvent(event);	
+
 //генерация нового бонуса
 				this.spawnBonus();
 
@@ -340,9 +342,6 @@ class Game
 				this.tailLength ++;
 				clearDir = false;
 				this.tailToActivate = tail;
-
-				var event = new CustomEvent("Snake-game: bonus taken");
-				document.dispatchEvent(event);
 			}
 //изменение координат головы
 			switch(this.direction)

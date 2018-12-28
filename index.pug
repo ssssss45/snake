@@ -5,6 +5,7 @@ html
     link(href="styles/styles.css" rel="stylesheet" type="text/css")
     script(src="src/pixi.min.js")
     script(src="src/pixi-sound.js")
+    script(src="src/pixi-particles.js")
     script(src="js/game.js")
     script(src="js/renderer.js")
     script(src="js/keyboard-controller.js")
@@ -57,7 +58,6 @@ html
           loadingProgress : "loading-progress",
 
           backgroundTexture : "assets/img/bg.jpg",
-          maxCamTilt : 750000,
           collisionCameraJump : 1000,
 
         sound_manager_data :
@@ -93,6 +93,116 @@ html
             spritesheet : "assets/img/spritesheet.png",
             ground : "assets/img/Ground.png",
             wall : "assets/img/Wall.png",
+            particle: "assets/img/particle.png",
+        },
+
+        bonusEmitter :
+        {
+          "alpha": {
+            "start": 1,
+            "end": 0
+          },
+          "scale": {
+            "start": 0.1,
+            "end": 0.01,
+            "minimumScaleMultiplier": 1
+          },
+          "color": {
+            "start": "#ff0000",
+            "end": "#fccc83"
+          },
+          "speed": {
+            "start": 50,
+            "end": 50,
+            "minimumSpeedMultiplier": 1
+          },
+          "acceleration": {
+            "x": 0,
+            "y": 0
+          },
+          "maxSpeed": 0,
+          "startRotation": {
+            "min": 0,
+            "max": 360
+          },
+          "noRotation": false,
+          "rotationSpeed": {
+            "min": 0,
+            "max": 0
+          },
+          "lifetime": {
+            "min": 1,
+            "max": 2
+          },
+          "blendMode": "normal",
+          "frequency": 0.001,
+          "emitterLifetime": 0.1,
+          "maxParticles": 100,
+          "pos": {
+            "x": 0,
+            "y": 0
+          },
+          "addAtBack": false,
+          "spawnType": "circle",
+          "spawnCircle": {
+            "x": 0,
+            "y": 0,
+            "r": 0
+          }
+        },
+
+        collisionEmitter :{
+          "alpha": {
+            "start": 1,
+            "end": 0
+          },
+          "scale": {
+            "start": 0.1,
+            "end": 0.01,
+            "minimumScaleMultiplier": 1
+          },
+          "color": {
+            "start": "#ffe100",
+            "end": "#ff0000"
+          },
+          "speed": {
+            "start": 700,
+            "end": 1000,
+            "minimumSpeedMultiplier": 1
+          },
+          "acceleration": {
+            "x": 0,
+            "y": 0
+          },
+          "maxSpeed": 0,
+          "startRotation": {
+            "min": 0,
+            "max": 360
+          },
+          "noRotation": false,
+          "rotationSpeed": {
+            "min": 0,
+            "max": 0
+          },
+          "lifetime": {
+            "min": 1,
+            "max": 2
+          },
+          "blendMode": "normal",
+          "frequency": 0.001,
+          "emitterLifetime": 0.1,
+          "maxParticles": 100,
+          "pos": {
+            "x": 0,
+            "y": 0
+          },
+          "addAtBack": false,
+          "spawnType": "circle",
+          "spawnCircle": {
+            "x": 0,
+            "y": 0,
+            "r": 0
+          }
         }
 
         });

@@ -7,11 +7,7 @@ class Renderer
 		this.width = params.gameWidth;
 		this.blockSize = params.blockSize;
 		this.framesPerStep = params.framesPerStep;
-		//this.moveDistance  = this.blockSize / (this.framesPerStep);
-		//this.moveDelay = params.gameSpeed / params.animationFps;
 		this.gameStep = params.gameSpeed;
-
-		//this.collisionCameraJump = params.collisionCameraJump;
 
 		this.startX = params.startX;
 		this.startY = params.startY;
@@ -23,17 +19,21 @@ class Renderer
 		this.halfPI = Math.PI / 2;
 
 		this.paused = false;
-		this.animationStopped = false;;
+		this.animationStopped = false;
+		this.cameraJumpsDefault = params.collisionCameraJump;
+
+		this.bonusEmitterData = params.bonusEmitter;
+		this.collisionEmitterData = params.collisionEmitter;
 
 		//this.maxDimension = Math.min(this.totalWidth, this.totalHeight)
 
-		window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 		this.pixi = new PIXI.Application({width : this.width * this.blockSize, height: this.height * this.blockSize});
 		document.body.appendChild(this.pixi.view);
 
 		this.bgContainer = new PIXI.Container();
 		this.pixi.stage.addChild(this.bgContainer);
-
+		this.particleContainer = new PIXI.Container();
+		this.pixi.stage.addChild(this.particleContainer);
 		this.gameContainer = new PIXI.Container();
 		this.pixi.stage.addChild(this.gameContainer);
 
@@ -54,6 +54,7 @@ class Renderer
 			.add(this.images.spritesheet)
 			.add(this.images.wall)
 			.add(this.images.ground)
+			.add(this.images.particle)
 			.load(this.drawField.bind(this));
 
 		this.tailRotationArray = [];
@@ -72,9 +73,7 @@ class Renderer
 		this.E = 3;
 
 		this.dirs = this.directions();
-		this.onWindowResize();
 	}
-
 
 	drawField()
 	{
@@ -107,8 +106,6 @@ class Renderer
 			}
 		}
 
-		
-
 		var event = new CustomEvent("Snake-game: renderer-ready");
 		this.head = this.getTailSprite();
 		this.bonus = this.getTailSprite();
@@ -131,26 +128,6 @@ class Renderer
 		return texture;
 	}
 
-	onWindowResize()
-	{
-	/*	this.screenWidth = window.innerWidth;
-		this.screenHeight = window.innerHeight;
-	    this.camera.aspect = this.screenWidth / this.screenHeight;
-	    this.camera.updateProjectionMatrix();
-	    this.scale = this.viewPortWidth / this.screenWidth;
-	    this.scaleY = this.totalWidth / this.screenWidth;
-
-	    this.tiltIncriment = this.totalWidth / this.maxCamTilt / (this.screenWidth / this.totalWidth / 2);
-
-	    this.renderer.setSize( window.innerWidth, window.innerHeight );
-
-		this.setCam();
-
-		if ((this.stateMachine.state != this.stateMachine.Loading) && (this.stateMachine.state != this.stateMachine.Welcome))
-		{
-			this.renderer.render(this.scene, this.camera);
-		}*/
-	}
 /*
 ███████╗████████╗ █████╗ ██████╗ ████████╗
 ██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝
@@ -168,6 +145,9 @@ class Renderer
 		this.head.y = (this.startY + 1.5) * this.blockSize;
 		
 		this.tail = [];
+		this.cameraJumps = this.cameraJumpsDefault
+		this.pixi.stage.x = 0;
+		this.pixi.stage.y = 0;
 
 		this.direction = this.startDirection;
 		this.lastDir = this.startDirection;
@@ -378,18 +358,51 @@ class Renderer
 //тряска камеры при столкновении
 	cameraJumpStart()
 	{
-		var event = new CustomEvent("Snake-game: ending animation finished");
-		document.dispatchEvent(event);
+		this.jumpDirections = this.directions(this.direction);
+		this.wait = 3;
+		this.emit(this.head.x, this.head.y, this.collisionEmitterData);
+		this.cameraJump();
 	}
 
 	cameraJump()
 	{
+		if (Math.abs(this.cameraJumps) > 10)
+		{
+			requestAnimationFrame(this.cameraJump.bind(this));
+		}
+		else
+		{
+			var event = new CustomEvent("Snake-game: ending animation finished");
+			document.dispatchEvent(event);
+		}
 
+		this.pixi.stage.x += this.jumpDirections.x * this.cameraJumps / 100;
+		this.pixi.stage.y += this.jumpDirections.y * this.cameraJumps / 100;
+
+		this.wait --;
+		if (this.wait == 0)
+		{
+			this.cameraJumps /= -1.3;
+			this.wait = 3;
+		}
 	}
 //выброс частиц при подборе бонуса
 	emitOnBonus()
 	{
+		this.emit(this.bonus.x, this.bonus.y, this.bonusEmitterData);
+	}
 
+	emit(x, y, data)
+	{
+		let emitterParams = data;
+		emitterParams.pos.x = x;
+		emitterParams.pos.y = y;
+		const emitter = new PIXI.particles.Emitter(
+			this.particleContainer,
+			[PIXI.loader.resources[this.images.particle].texture],
+			emitterParams
+		);
+		emitter.playOnceAndDestroy();
 	}
 
 	getHeadCoords()
