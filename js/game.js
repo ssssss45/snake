@@ -43,8 +43,6 @@ class Game
 		this.startY = params.startY;
 		this.startTail = params.initialTail;
 		this.startDirection = params.initialDirection;
-		this.followCamControls = false;
-		this.walls = params.walls;
 
 		this.sound_manager_data = params.sound_manager_data;
 
@@ -62,8 +60,6 @@ class Game
 //слушатели на события стейт машины
 		document.addEventListener("Snake-game:pause-pressed",
 			this.pausePressed.bind(this));
-		document.addEventListener("Snake-game:switch-camera",
-			this.switchCamera.bind(this));
 		document.addEventListener("Snake-game:new-game",
 			this.gameStart.bind(this));
 		document.addEventListener("Snake-game: game over",
@@ -246,7 +242,6 @@ class Game
 			requestAnimationFrame( this.gameStep.bind(this));
 		}
 
-
 //управление в режиме камеры сверху
 		if ((this.leftActive) && (this.direction != 3))
 		{
@@ -267,7 +262,7 @@ class Game
 		{
 			this.newDirection = 0;
 		}
-		
+
 
 		var date = new Date();
 		var dif = date.getTime() - this.previousTime;
@@ -321,10 +316,8 @@ class Game
 
 				var event = new CustomEvent("Snake-game: bonus taken");
 				document.dispatchEvent(event);	
-
 //генерация нового бонуса
 				this.spawnBonus();
-
 //увеличение хвоста
 				var last = this.tail[this.tail.length - 1];
 				var tail = this.assetManager.getAssetByType("tail")
@@ -430,12 +423,6 @@ class Game
 		}
 	}
 
-	switchCamera()
-	{
-		this.followCamControls = !this.followCamControls;
-		this.turn = 0;
-		this.newDirection = this.direction
-	}
 //обработчик нажатий на кнопку паузы
 	pausePressed()
 	{

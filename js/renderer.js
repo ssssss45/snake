@@ -6,8 +6,6 @@ class Renderer
 		this.height = params.gameHeight;
 		this.width = params.gameWidth;
 		this.blockSize = params.blockSize;
-		this.framesPerStep = params.framesPerStep;
-		this.gameStep = params.gameSpeed;
 
 		this.startX = params.startX;
 		this.startY = params.startY;
@@ -25,20 +23,16 @@ class Renderer
 		this.bonusEmitterData = params.bonusEmitter;
 		this.collisionEmitterData = params.collisionEmitter;
 
-		//this.maxDimension = Math.min(this.totalWidth, this.totalHeight)
-
 		this.pixi = new PIXI.Application({width : this.width * this.blockSize, height: this.height * this.blockSize});
 		document.body.appendChild(this.pixi.view);
-
+//создание контейнеров
 		this.bgContainer = new PIXI.Container();
 		this.pixi.stage.addChild(this.bgContainer);
 		this.particleContainer = new PIXI.Container();
 		this.pixi.stage.addChild(this.particleContainer);
 		this.gameContainer = new PIXI.Container();
 		this.pixi.stage.addChild(this.gameContainer);
-
-		this.unusedTails = [];
-
+//слушатели на генерируемые игрой события
 		document.addEventListener("Snake-game: new game",
 			this.start.bind(this));
 		document.addEventListener("Snake-game:pause-pressed",
@@ -47,8 +41,7 @@ class Renderer
 			this.cameraJumpStart.bind(this));
 		document.addEventListener("Snake-game: bonus taken",
 			this.emitOnBonus.bind(this));
-
-		let draw = this.drawField.bind(this);
+//загрузка изображений
 		this.images = params.images;
 		var loader = PIXI.loader
 			.add(this.images.spritesheet)
@@ -56,7 +49,7 @@ class Renderer
 			.add(this.images.ground)
 			.add(this.images.particle)
 			.load(this.drawField.bind(this));
-
+//массив использумый для поворота угловых сегментов
 		this.tailRotationArray = [];
 		this.tailRotationArray[66] = -this.halfPI;
 		this.tailRotationArray[258] = Math.PI;
@@ -77,12 +70,13 @@ class Renderer
 
 	drawField()
 	{
+//получение текстур из спрайтшита
 		this.bonusTexture = this.getTextures(this.spriteData.bonusSprite.x, this.spriteData.bonusSprite.y, this.spriteData.spriteSize)
 		this.headTexture = this.getTextures(this.spriteData.headSprite.x, this.spriteData.headSprite.y, this.spriteData.spriteSize)
 		this.straightTexture = this.getTextures(this.spriteData.straigntSprite.x, this.spriteData.straigntSprite.y, this.spriteData.spriteSize)
 		this.turnTexture = this.getTextures(this.spriteData.turnSprite.x, this.spriteData.turnSprite.y, this.spriteData.spriteSize)
 		this.tailTexture = this.getTextures(this.spriteData.tailSprite.x, this.spriteData.tailSprite.y, this.spriteData.spriteSize)
-		//постройка стен
+//постройка стен
 		for (var i = 0; i < this.width; i++)
 		{
 			for (var j = 0; j < this.height; j++)
@@ -107,6 +101,7 @@ class Renderer
 		}
 
 		var event = new CustomEvent("Snake-game: renderer-ready");
+//создание спрайтов головы и бонуса, навешивание на них нужных текстур
 		this.head = this.getTailSprite();
 		this.bonus = this.getTailSprite();
 		this.bonus.texture = this.bonusTexture;
@@ -115,6 +110,7 @@ class Renderer
 		document.dispatchEvent(event);
 	}
 
+//метод получения текстур из спрайтшита
 	getTextures(x, y, size)
 	{
 		var spriteSheet = new PIXI.Sprite(PIXI.loader.resources[this.images.spritesheet].texture);
@@ -186,19 +182,21 @@ class Renderer
 			{
 				this.tail[i].sprite.visible = true;
 				var dirs = this.directions(dirArray[i + 1]);
-
+//движение текстур хвоста
 				this.tail[i].sprite.x += dirs.x * this.blockSize;
 				this.tail[i].sprite.y += dirs.y * this.blockSize;
 
-				//замена текстуры тела
+//замена текстуры тела
 				if ((i == 0) && (this.tail.length > 1))
 				{
+//секция у головы
 					let temp = {x : hx, y : hy};
 					this.determineSegmentTexture(temp, this.tail[1], this.tail[0]);
 				}
 				else
 				if ((i == this.tail.length - 1) || ((i == this.tail.length - 2) && (!this.tail[this.tail.length - 1].active)))
 				{
+//хвост
 					this.tail[i].sprite.texture = this.tailTexture;
 					switch(dirArray[i])
 					{
@@ -391,7 +389,7 @@ class Renderer
 	{
 		this.emit(this.bonus.x, this.bonus.y, this.bonusEmitterData);
 	}
-
+//метод выброса частиц
 	emit(x, y, data)
 	{
 		let emitterParams = data;
