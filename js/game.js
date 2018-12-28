@@ -47,20 +47,8 @@ class Game
 		this.startDirection = params.initialDirection;
 		this.followCamControls = false;
 		this.walls = params.walls;
-//инициализация ассет менеджера
-		this.assetManager = new AssetManager(
-			{
-				assets:[
-					{
-						type : "tail",
-						number : 10,
-						params : {
-							renderer : this.renderer,
-							x : -10,
-							y : -10
-						},
-				assetClass : Tail
-			}]});
+
+		this.sound_manager_data = params.sound_manager_data;
 
 		var waitForEvent = params.sound_manager_data.soundLoadedEventName;
 
@@ -87,8 +75,8 @@ class Game
 			this.endingFinishedHandler.bind(this));
 		document.addEventListener(waitForEvent,
 			this.loadedHandler.bind(this));
-//инициализация саунд менеджера
-		this.soundManager = new SoundManager(params.sound_manager_data);
+		document.addEventListener("Snake-game: renderer-ready",
+			this.initSounds.bind(this));
 
 		this.tail = [];
 		this.leftActive = false;
@@ -101,6 +89,27 @@ class Game
 		this.W = 1;
 		this.N = 2;
 		this.E = 3;
+	}
+
+	initSounds()
+	{
+//инициализация ассет менеджера
+		this.assetManager = new AssetManager(
+			{
+				assets:[
+					{
+						type : "tail",
+						number : 10,
+						params : {
+							renderer : this.renderer,
+							x : -10,
+							y : -10
+						},
+				assetClass : Tail
+			}]});
+
+//инициализация саунд менеджера
+		this.soundManager = new SoundManager(this.sound_manager_data);
 	}
 //обработчик загрузки
 	loadedHandler()
@@ -344,10 +353,13 @@ class Game
 					collision = true;
 				}
 			}
+//движение спрайтов
+			this.renderer.move(this.dirs);
 //активация нового сегмента, если он есть
 			if (this.tailToActivate != undefined)
 			{
 				this.tailToActivate.active = true;
+				//this.renderer.tail.push(this.tailToActivate)
 				this.tailToActivate = undefined;
 			}
 //обработка подбора бонусов
@@ -389,13 +401,14 @@ class Game
 				case 3: this.x += 1; break;				
 			}	
 //проверка столкновения со стенами
+/*
 			for (var i = 0; i < this.walls.length; i++)
 			{
 				if ((this.walls[i].x == this.x)&&(this.walls[i].y == this.y))
 				{
 					collision = true;
 				}
-			}
+			}*/
 //переход в состояние конечной анимации
 			if ((this.x == -1) || (this.y == -1) || (this.x == this.width) || (this.y == this.height) || (collision))
 			{
@@ -404,14 +417,7 @@ class Game
 
 			this.turnCountdown = this.gameSpeed;
 			this.animationCountdown = 0;
-			var diff = this.framesPerStep - this.frames;
-			if (diff > 0)
-			{
-				for (var i = 0; i < diff; i++)
-				{
-					this.renderer.move(this.dirs);
-				}
-			}
+
 //передача нового направления отрисовщику
 			this.renderer.setDir(this.direction);
 //обновление массива направлений
@@ -422,16 +428,6 @@ class Game
 			this.dirs.unshift(this.direction);
 
 			this.frames = 0;
-		}
-//движение сегментов
-		if ((this.animationCountdown <= 0))
-		{
-			this.frames ++;
-			if (this.frames <= this.framesPerStep)
-			{
-				this.renderer.move(this.dirs);
-			}
-			this.animationCountdown += this.animationTime;	
 		}
 	}
 //генерация бонуса
@@ -446,13 +442,6 @@ class Game
 			this.renderer.spawnBonus(this.bonusX, this.bonusY);	
 	
 			check = false;
-			for (var i = 0; i < this.walls.length; i++)
-			{
-				if ((this.bonusX == this.walls[i].x) && (this.bonusY == this.walls[i].y))
-				{
-					check = true;
-				}
-			}
 		}
 	}
 //получение направления из угла (на клик и тач)

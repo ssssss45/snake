@@ -3,8 +3,6 @@ html
     title Snake
     link(href="styles/normalize.css" rel="stylesheet" type="text/css")
     link(href="styles/styles.css" rel="stylesheet" type="text/css")
-    script(src="src/three.min.js")
-    script(src="src/SPE.js")
     script(src="src/pixi.min.js")
     script(src="src/pixi-sound.js")
     script(src="js/game.js")
@@ -82,32 +80,12 @@ html
             ]
         },
 
-        walls : [
-            {
-                x :10,
-                y :10
-            },
-            {
-                x: 3,
-                y: 3
-            },
-            {
-                x: 7,
-                y: 19
-            },
-            {
-                x: 17,
-                y: 5
-            },
-            {
-                x: 15,
-                y: 14
-            },
-            {
-                x: 27,
-                y: 17
-            }
-        ]
+        images : 
+        {
+            spritesheet : "assets/img/spritesheet.png",
+            ground : "assets/img/Ground.png",
+            wall : "assets/img/Wall.png",
+        }
 
         });
 

@@ -3,7 +3,7 @@ class Tail
 	constructor(params)
 	{
 		this.renderer = params.renderer;
-		this.mesh = params.renderer.getTailMesh();
+		this.sprite = params.renderer.getTailSprite();
 		this.x = params.x;
 		this.y = params.y;
 		this.active = false;
@@ -29,12 +29,12 @@ class Tail
 	{
 		this.x = x;
 		this.y = y;
-		this.renderer.deployTail(this, x, y + mod)
+		this.renderer.deployTail(this, x, y)
 	}
 
 	hide()
 	{
-		this.mesh.position.x = -10;
-		this.mesh.position.y = -10;
+		this.sprite.x = -10;
+		this.sprite.y = -10;
 	}
 }
