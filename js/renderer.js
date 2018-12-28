@@ -18,6 +18,10 @@ class Renderer
 		this.startDirection = params.initialDirection;
 		this.initialTail = params.initialTail;
 
+		this.spriteData = params.spriteData;
+
+		this.halfPI = Math.PI / 2;
+
 		this.paused = false;
 		this.animationStopped = false;;
 
@@ -52,6 +56,16 @@ class Renderer
 			.add(this.images.ground)
 			.load(this.drawField.bind(this));
 
+		this.tailRotationArray = [];
+		this.tailRotationArray[66] = -this.halfPI;
+		this.tailRotationArray[258] = Math.PI;
+		this.tailRotationArray[36] = -this.halfPI;
+		this.tailRotationArray[132] = 0;
+		this.tailRotationArray[72] = 0;
+		this.tailRotationArray[264] = this.halfPI;
+		this.tailRotationArray[48] = Math.PI;
+		this.tailRotationArray[144] = this.halfPI;
+
 		this.S = 0;
 		this.W = 1;
 		this.N = 2;
@@ -64,7 +78,11 @@ class Renderer
 
 	drawField()
 	{
-		
+		this.bonusTexture = this.getTextures(this.spriteData.bonusSprite.x, this.spriteData.bonusSprite.y, this.spriteData.spriteSize)
+		this.headTexture = this.getTextures(this.spriteData.headSprite.x, this.spriteData.headSprite.y, this.spriteData.spriteSize)
+		this.straightTexture = this.getTextures(this.spriteData.straigntSprite.x, this.spriteData.straigntSprite.y, this.spriteData.spriteSize)
+		this.turnTexture = this.getTextures(this.spriteData.turnSprite.x, this.spriteData.turnSprite.y, this.spriteData.spriteSize)
+		this.tailTexture = this.getTextures(this.spriteData.tailSprite.x, this.spriteData.tailSprite.y, this.spriteData.spriteSize)
 		//постройка стен
 		for (var i = 0; i < this.width; i++)
 		{
@@ -88,11 +106,29 @@ class Renderer
 				this.bgContainer.addChild(sprite);
 			}
 		}
+
+		
+
 		var event = new CustomEvent("Snake-game: renderer-ready");
 		this.head = this.getTailSprite();
 		this.bonus = this.getTailSprite();
+		this.bonus.texture = this.bonusTexture;
+		this.head.texture = this.headTexture;
 
 		document.dispatchEvent(event);
+	}
+
+	getTextures(x, y, size)
+	{
+		var spriteSheet = new PIXI.Sprite(PIXI.loader.resources[this.images.spritesheet].texture);
+		this.pixi.stage.addChild(spriteSheet);
+		var texture = new PIXI.Texture(
+	          	PIXI.loader.resources[this.images.spritesheet].texture,
+	          	new PIXI.Rectangle(x * size, y * size, size, size)
+	        );
+		spriteSheet.destroy();
+
+		return texture;
 	}
 
 	onWindowResize()
@@ -145,7 +181,7 @@ class Renderer
 ██║ ╚═╝ ██║╚██████╔╝ ╚████╔╝ ███████╗
 ╚═╝     ╚═╝ ╚═════╝   ╚═══╝  ╚══════╝
 */
-	move(dirArray)
+	move(dirArray, hx, hy)
 	{
 		if (this.particlesShown)
 		{
@@ -155,15 +191,118 @@ class Renderer
 		this.dirs = this.directions(this.direction);
 		this.head.x += this.dirs.x * this.blockSize;
 		this.head.y += this.dirs.y * this.blockSize;
+//поворот текстуры головы
+		switch(this.direction)
+		{
+			case this.W: this.head.rotation = Math.PI; break;
+			case this.E: this.head.rotation = 0; break;
+			case this.S: this.head.rotation = this.halfPI; break;
+			case this.N: this.head.rotation = -this.halfPI; break;
+		}
 
 		for (var i = 0; i < this.tail.length; i++)
 		{
 			if (this.tail[i].active)
 			{
+				this.tail[i].sprite.visible = true;
 				var dirs = this.directions(dirArray[i + 1]);
+
 				this.tail[i].sprite.x += dirs.x * this.blockSize;
 				this.tail[i].sprite.y += dirs.y * this.blockSize;
+
+				//замена текстуры тела
+				if ((i == 0) && (this.tail.length > 1))
+				{
+					let temp = {x : hx, y : hy};
+					this.determineSegmentTexture(temp, this.tail[1], this.tail[0]);
+				}
+				else
+				if ((i == this.tail.length - 1) || ((i == this.tail.length - 2) && (!this.tail[this.tail.length - 1].active)))
+				{
+					this.tail[i].sprite.texture = this.tailTexture;
+					switch(dirArray[i])
+					{
+						case this.W: this.tail[i].sprite.rotation = Math.PI; break;
+						case this.E: this.tail[i].sprite.rotation = 0; break;
+						case this.S: this.tail[i].sprite.rotation = this.halfPI; break;
+						case this.N: this.tail[i].sprite.rotation = -this.halfPI; break;
+					}
+				}
+				else
+				{
+					this.determineSegmentTexture(this.tail[i - 1], this.tail[i + 1], this.tail[i])
+				}
 			}
+		}
+	}
+
+	determineSegmentTexture(prevSprite, nextSprite, target)
+	{
+		if (prevSprite.x == nextSprite.x)
+		{
+			target.sprite.texture = this.straightTexture;
+			target.sprite.rotation = Math.PI / 2;
+		}
+		else
+		if (prevSprite.y == nextSprite.y)
+		{
+			target.sprite.texture = this.straightTexture;
+			target.sprite.rotation = 0;
+		}
+		else
+		{
+			target.sprite.texture = this.turnTexture;
+			let descision = 0;
+//определение нужного поворота углового сегмента
+			if (prevSprite.x != target.x)
+			{
+				if (prevSprite.x > target.x)
+				{
+					descision += 4;
+				}
+				else
+				{
+					descision += 16;
+				}
+			}
+
+			if (nextSprite.x != target.x)
+			{
+				if (nextSprite.x > target.x)
+				{
+					descision += 64;
+				}
+				else
+				{
+					descision += 256;
+				}
+			}
+
+			if (prevSprite.y != target.y)
+			{
+				if (prevSprite.y > target.y)
+				{
+					descision += 8;
+				}
+				else
+				{
+					descision += 2;
+				}
+			}
+
+			if (nextSprite.y != target.y)
+			{
+				if (nextSprite.y > target.y)
+				{
+					descision += 128;
+				}
+				else
+				{
+					descision += 32;
+				}
+			}
+
+			target.sprite.rotation = this.tailRotationArray[descision];
 		}
 	}
 
@@ -215,6 +354,8 @@ class Renderer
 		let sprite = new PIXI.Sprite()
 		sprite.anchor.x = 0.5;
 		sprite.anchor.y = 0.5;
+		sprite.pivot.x = 0.5;
+		sprite.pivot.y = 0.5;
 		sprite.x = -10;
 		sprite.y = -10;
 		sprite.width = this.blockSize;
@@ -227,6 +368,7 @@ class Renderer
 //установка нового куска хвоста на поле
 	deployTail(tail, x, y)
 	{
+		tail.visible = false;
 		tail.sprite.x = (x + 0.5) * this.blockSize;
 		tail.sprite.y = (y + 0.5) * this.blockSize;
 		this.tail.push(tail);
@@ -237,9 +379,7 @@ class Renderer
 	cameraJumpStart()
 	{
 		var event = new CustomEvent("Snake-game: ending animation finished");
-
 		document.dispatchEvent(event);
-		
 	}
 
 	cameraJump()
@@ -255,8 +395,8 @@ class Renderer
 	getHeadCoords()
 	{
 		return  {
-					x: this.head.position.x,
-					y: this.totalHeight - this.head.position.y
+					x: this.head.x,
+					y: this.head.y
 				}	
 	}
 

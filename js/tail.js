@@ -4,6 +4,7 @@ class Tail
 	{
 		this.renderer = params.renderer;
 		this.sprite = params.renderer.getTailSprite();
+		this.sprite.visible = false;
 		this.x = params.x;
 		this.y = params.y;
 		this.active = false;
@@ -18,6 +19,17 @@ class Tail
 			case 2: this.y -= 1; break;
 			case 3: this.x += 1; break;				
 		}	
+	}
+
+	activate()
+	{
+		this.active = true;
+	}
+
+	deactivate()
+	{
+		this.active = false;
+		this.sprite.visible = false;
 	}
 
 	checkHeadCollision(x, y)

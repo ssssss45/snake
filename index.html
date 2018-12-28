@@ -18,7 +18,6 @@
   <body>
     <button class="pause-button" onclick="pause()">пауза</button>
     <button class="new-game-button" onclick="newGame()">Новая игра</button>
-    <button class="cam-button" onclick="switchCam()">камера</button>
     <progress class="loading-progress"></progress>
     <div class="score-container">Счёт: 0</div>
     <div class="pause-message">Пауза</div>
@@ -31,13 +30,22 @@
         gameWidth : 30,
         gameHeight : 20,
         blockSize : 30,
-        gameSpeed : 300,
+        gameSpeed : 100,
         framesPerStep : 11,
         animationFps : 50,
         startX : 10,
         startY : 7,
         initialTail : 2,
         initialDirection : 2,
+      
+        spriteData : {
+          spriteSize : 64,
+          turnSprite : {x : 0, y : 0},
+          bonusSprite : {x : 0, y : 3},
+          headSprite : {x : 4, y : 0},
+          straigntSprite : {x : 1, y : 0},
+          tailSprite : {x : 4, y : 2},
+        },
       
         scoreContainer: "score-container",
         gameOverMessage : "game-over-message",
@@ -94,12 +102,6 @@
       function pause()
       {
           var event = new CustomEvent("Snake-game:pause-pressed");
-          document.dispatchEvent(event);
-      }
-      
-      function switchCam()
-      {
-          var event = new CustomEvent("Snake-game:switch-camera");
           document.dispatchEvent(event);
       }
       

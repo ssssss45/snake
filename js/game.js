@@ -26,14 +26,12 @@ class Game
 		this.finalScore = document.getElementsByClassName(params.finalScore)[0];
 		this.pauseButton = document.getElementsByClassName(params.pauseButton)[0];
 		this.pauseMessage = document.getElementsByClassName(params.pauseMessage)[0];
-		this.camButton = document.getElementsByClassName(params.camButton)[0];
 		this.newGameButton = document.getElementsByClassName(params.newGameButton)[0];
 		this.loadingMessage = document.getElementsByClassName(params.loadingMessage)[0];
 		this.loadingProgress = document.getElementsByClassName(params.loadingProgress)[0];
 //установка видимости элементов
 		this.scoreContainer.style.visibility = "hidden";
 		this.pauseButton.style.visibility = "hidden";
-		this.camButton.style.visibility = "hidden";
 		this.gameOverMessage.style.visibility = "hidden";
 		this.finalScore.style.visibility = "hidden";
 		this.pauseMessage.style.visibility = "hidden";
@@ -175,7 +173,6 @@ class Game
 //установка видимости элементов
 		this.scoreContainer.style.visibility = "visible";
 		this.pauseButton.style.visibility = "visible";
-		this.camButton.style.visibility = "visible";
 		this.welcomeMessage.style.visibility = "hidden";
 		this.newGameButton.style.visibility = "hidden";
 		this.gameOverMessage.style.visibility = "hidden";
@@ -206,7 +203,7 @@ class Game
 				var tail = this.assetManager.getAssetByType("tail")
 				this.tail.push(tail);
 				tail.deploy(this.x - dirs.x * (i + 1), this.y - dirs.y * (i + 1) + 1, 0);	
-				tail.active = true;			
+				tail.activate();			
 			}
 
 			this.dirs.push(this.direction)
@@ -226,7 +223,7 @@ class Game
 		while (this.tail.length > 0)
 		{
 			var tail = this.tail[0];
-			tail.active = false;
+			tail.deactivate()
 			tail.hide();
 			this.assetManager.returnAsset(tail);
 			this.tail.shift();
@@ -250,57 +247,28 @@ class Game
 			requestAnimationFrame( this.gameStep.bind(this));
 		}
 
-		if (this.followCamControls)
-		{
-//управление в режиме камеры от третьего лица
-			if (this.touch != undefined)
-			{
-				if (this.touch.clientX < this.renderer.screenWidth / 2)
-				{
-					this.leftActive = true;
-				}
-				else
-				{
-					this.rightActive = true;
-				}
-				this.touch = undefined;
-			}
 
-			if (this.leftActive)
-			{
-				this.leftActive = false;
-				this.turn = -1;
-			}
-
-			if (this.rightActive)
-			{
-				this.rightActive = false;
-				this.turn = 1;
-			}
-		}
-		else
-		{
 //управление в режиме камеры сверху
-			if ((this.leftActive) && (this.direction != 3))
-			{
-				this.newDirection = 1;
-			}
-
-			if ((this.rightActive) && (this.direction != 1))
-			{
-				this.newDirection = 3;
-			}
-
-			if ((this.upActive) && (this.direction != 0))
-			{
-				this.newDirection = 2;
-			}
-
-			if ((this.downActive) && (this.direction != 2))
-			{
-				this.newDirection = 0;
-			}
+		if ((this.leftActive) && (this.direction != 3))
+		{
+			this.newDirection = 1;
 		}
+
+		if ((this.rightActive) && (this.direction != 1))
+		{
+			this.newDirection = 3;
+		}
+
+		if ((this.upActive) && (this.direction != 0))
+		{
+			this.newDirection = 2;
+		}
+
+		if ((this.downActive) && (this.direction != 2))
+		{
+			this.newDirection = 0;
+		}
+		
 
 		var date = new Date();
 		var dif = date.getTime() - this.previousTime;
@@ -315,31 +283,15 @@ class Game
 //переключение направлений
 		if (this.turnCountdown < 0)
 		{
-			if (this.followCamControls)
+
+			if (this.touch != undefined)
 			{
-				this.direction += this.turn;
-
-				if (this.direction == -1)
-				{
-					this.direction = 3;
-				}
-
-				if (this.direction == 4)
-				{
-					this.direction = 0;
-				}
-				this.turn = 0;
+				this.newDirection = this.getDirectionFromAngle(this.renderer.getHeadCoords(), {x:this.touch.clientX, y:this.touch.clientY}, this.direction);
+				this.touch = undefined
 			}
-			else
-			{
-				if (this.touch != undefined)
-				{
-					this.newDirection = this.getDirectionFromAngle(this.renderer.getHeadCoords(), {x:this.touch.clientX / this.renderer.scale, y:this.touch.clientY / this.renderer.scaleY }, this.direction);
-					this.touch = undefined
-				}
 
-				this.direction = this.newDirection;	
-			}
+			this.direction = this.newDirection;	
+			
 //обновление координат сегментов хвоста
 			for (var i = 0; i < this.tailLength; i++)
 			{
@@ -354,11 +306,11 @@ class Game
 				}
 			}
 //движение спрайтов
-			this.renderer.move(this.dirs);
+			this.renderer.move(this.dirs, this.x, this.y);
 //активация нового сегмента, если он есть
 			if (this.tailToActivate != undefined)
 			{
-				this.tailToActivate.active = true;
+				this.tailToActivate.activate();
 				//this.renderer.tail.push(this.tailToActivate)
 				this.tailToActivate = undefined;
 			}
@@ -400,17 +352,8 @@ class Game
 				case 2: this.y -= 1; break;
 				case 3: this.x += 1; break;				
 			}	
-//проверка столкновения со стенами
-/*
-			for (var i = 0; i < this.walls.length; i++)
-			{
-				if ((this.walls[i].x == this.x)&&(this.walls[i].y == this.y))
-				{
-					collision = true;
-				}
-			}*/
 //переход в состояние конечной анимации
-			if ((this.x == -1) || (this.y == -1) || (this.x == this.width) || (this.y == this.height) || (collision))
+			if ((this.x == 0) || (this.y == 0) || (this.x == this.width - 1) || (this.y == this.height - 1) || (collision))
 			{
 				this.stateMachine.setEndingAnimation();
 			}
