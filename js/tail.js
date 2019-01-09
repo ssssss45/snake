@@ -9,7 +9,7 @@ class Tail
 		this.y = params.y;
 		this.active = false;
 	}
-
+//обновление координат в зависимости от направления
 	updateCoords(dir)
 	{
 		switch(dir)
@@ -20,33 +20,32 @@ class Tail
 			case 3: this.x += 1; break;				
 		}	
 	}
-
+//установка активного состояния
 	activate()
 	{
 		this.active = true;
 	}
-
+//снятие активного состояния, сокрытие спрайта
 	deactivate()
 	{
 		this.active = false;
 		this.sprite.visible = false;
 	}
-
+//проверка столкновения головы с сегментом
 	checkHeadCollision(x, y)
 	{
 		return ((x == this.x) && (y == this.y));
 	}
-
+//установка сегмента на поле
 	deploy(x, y, mod)
 	{
 		this.x = x;
 		this.y = y;
 		this.renderer.deployTail(this, x, y)
 	}
-
+//сокрытие спрайта сегмента
 	hide()
 	{
-		this.sprite.x = -10;
-		this.sprite.y = -10;
+		this.sprite.visible = false;
 	}
 }

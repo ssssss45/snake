@@ -11,6 +11,7 @@ class Renderer
 		this.startY = params.startY;
 		this.startDirection = params.initialDirection;
 		this.initialTail = params.initialTail;
+		this.cameraJumpMod = params.cameraJumpMod;
 
 		this.spriteData = params.spriteData;
 
@@ -374,6 +375,7 @@ class Renderer
 	{
 		this.jumpDirections = this.directions(this.direction);
 		this.wait = 3;
+		this.second = false;
 		this.emit(this.head.x, this.head.y, this.collisionEmitterData);
 		this.cameraJump();
 	}
@@ -396,7 +398,15 @@ class Renderer
 		this.wait --;
 		if (this.wait == 0)
 		{
-			this.cameraJumps /= -1.3;
+			if (this.second)
+			{
+				this.cameraJumps /= -this.cameraJumpMod;
+			}
+			else
+			{
+				this.cameraJumps /= -1;
+			}
+			this.second = !this.second;
 			this.wait = 3;
 		}
 	}
